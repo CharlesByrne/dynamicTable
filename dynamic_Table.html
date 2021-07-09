@@ -1,0 +1,2139 @@
+<!-- ASSIGNMENT #3 - BY: Charles Byrne (Student Number: 97700266)
+  FOR CS230[A] - Web Information Processing
+  14th March 2021 -
+  - Tested on: - Chrome and Firefox, Edge and Vivaldi 3.6 in Windows 10 
+
+-->
+
+<HTML>
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <style>
+    body {  
+      user-select: none;              /* Avoid text being selected (and anoyingly hilighted) on double click */
+      -webkit-user-select: none;      /* Various browsers: Safari,Firefox, Edge/IE10 */
+      -moz-user-select: none;
+      -ms-user-select: none;
+      font-family: sans-serif;
+      font-size: 20px;
+
+    }
+
+
+    .outside {
+      background-color:none;
+      display: none;
+      height: 100%;
+      width: 100%;
+      left:0;
+      top:0;
+      position: absolute;
+    }
+    .usekeys {
+      background-color: lightblue;
+      font-size: 10px;
+      padding: 10px;
+      line-height: 0.9;
+      text-align: left;
+    }
+
+
+
+.ib {
+  position: absolute;
+  background-color: white;
+  border: 2px solid lightblue;
+  color:blue;
+  overflow:hidden;
+}
+[contenteditable] {
+  outline: 0px solid transparent;
+}
+
+.flex_in {
+  left: 0px;
+  right: 0px;
+  border: 2px solid #ff0000; 
+  padding: none;
+  vertical-align: top;
+  background: lightblue;
+  padding:0;
+
+}
+.menu {
+  position:absolute; top: 80; left:40;
+  background-color: white;
+  border: 2px solid black;
+  display: none;
+  padding: 4px;
+}
+.container {
+  padding: 0px;
+}
+.container td {
+  padding: 4px;
+}
+
+.topMenu {
+  background-color: white;
+
+  display: inline-block;
+  padding: 0px;
+}
+
+.menuItem {
+  background-color: white;
+      font-size: 14px;
+      padding: 5;
+      cursor: pointer;
+    }
+
+.menuItem_disabled {
+  background-color: white;
+  color: #a3a3a3;
+      font-size: 14px;
+      padding: 5;
+
+    }
+
+    .menuItem:hover {
+      background-color: rgb(199, 197, 197);
+    } 
+
+.flex_td {
+
+  border-collapse: collapse;
+  background-color: lightblue;
+  padding: none;
+  vertical-align: top;
+
+}
+
+
+    .statText {
+      font-family: 'Orbitron', 'Courier New', Courier, monospace;
+      font-size: 20px;
+      font-weight: lighter;
+      height: 66px;
+      width: 99px;
+      position: absolute;
+
+      line-height: 1.6;
+      background: none;
+      left: 186px;
+      border: none;
+      text-align: center;
+      justify-content: center;
+      display: flex;
+    }
+
+    .flexiTable tr:nth-child(even) {
+      background-color: #dfdfdf;
+  }
+
+  .flexiTable tr:nth-child(odd) {
+      background-color: white;
+  }
+
+.flexiTable {
+  border: 1px solid black;
+  border-spacing: 0px;
+  padding: 0px;
+  offset: top;
+}
+
+.rhMenu {
+  padding: 4px;
+}
+
+.flexiTable td, .flexiTable th {
+  border: 1px solid black;
+  padding: 8px;
+}
+
+.t0 {
+  background-color: none;
+  color: black;
+}
+.t1 {
+  background-color: lightblue;
+  color: black;
+}
+.t2 {
+  background-color: #0162b1;
+  color: white;
+}
+.t3 {
+  font-size:smaller;
+  background-color: yellow;
+  color: black;
+}
+.t4 {
+  font-size:smaller;
+  background-color: #c8aa23;
+  color: black;
+}
+.t5 {
+  font-size:smaller;
+  background-color: #574805;
+  color: white;
+}
+.t6 {
+  background-color: red;
+  color: white;
+}
+.t7 {
+  background-color: #a31111;
+  color: white;
+}
+.t8 {
+  background-color: #580202;
+  color: white;
+}
+.t9 {
+  background-color: #0162b1;
+  color: white;
+  font-weight: bold;
+}
+.t10 {
+  font-weight: bold;
+  background-color: #a3a3a3;
+}
+
+
+.t1_sel {
+  background-color: lightblue;
+  color: black;
+}
+
+  </style>
+
+  <script>
+
+
+    // ######################################################################
+    //        DECLARE GLOBAL VARIABLES
+    // ######################################################################
+
+    // The first row of tableData contains the column headings (assignments will be added)
+    var tableData = [['Student Name','StudentID',['Average &percnt;','Letter Grade','4.0 Scale']]];
+    var savedTable = null;
+    var defaultRow = ['-','-','=avg()'];
+    var placeHolder = ['[Enter Name]','[Enter Student ID]','-'];
+    var defaultRowTypes = ['T','#','X'];
+    var defaultRow_backup = [...defaultRow]; // in case we want to reset
+    var assignmentCount = 0;
+    var currentEdit = [];
+    var averageDisplay = 0;
+    var gradeScale = [ { grade: 93, letter: 'A', scale: '4.0'},
+                       { grade: 90, letter: 'A-', scale: '3.7'},
+                       { grade: 87, letter: 'B+', scale: '3.3'},
+                       { grade: 83, letter: 'B', scale: '3.0'},
+                       { grade: 80, letter: 'B-', scale: '2.7'},
+                       { grade: 77, letter: 'C+', scale: '2.3'},
+                       { grade: 73, letter: 'C', scale: '2.0'},
+                       { grade: 70, letter: 'C-', scale: '1.7'},
+                       { grade: 67, letter: 'D+', scale: '1.3'},
+                       { grade: 63, letter: 'D', scale: '1.0'},
+                       { grade: 60, letter: 'D-', scale: '0.7'},
+                       { grade: -1, letter: 'F', scale: '0.0'}    ];
+    const cNames = ['Philomena','Sandra','John','Mary','Paul','Francis','James','Anne','Catherine','Sean',
+                    'Joseph','Frank','Anthony','Gerry','Therese','Brighid','Pat','Louis','Leo','Mick','Clare','Conor'
+    ];
+    const sNames = ['Murphy','McGoo','Doe','Byrne','Gaynor','McDonald','Woods','Clarke','Molloy',
+                     'McDonald','Brogan','Barry','Quinn','McGuffin','Grendon','Malone','McGuire'
+    ];
+    var rhMenuData = {
+        curMenuNo: -1,
+        menuItems: [["Insert Row Above","Insert Row Below","Delete this Row","Fill with Random Data","Edit Name","Edit ID"],
+                    ["Insert Column Left","Insert Column Right","Delete this Column","Change Column name"] ]
+    };
+
+    var alignText = ['','text-align: left; ', 'text-align: center; ','text-align: right; '];
+    var unsubmittedAssignments = 0;
+    var editingEmptyCell = false;
+    var addToUSA = false;
+    var selectedRow = -1;
+    var selectedCol = -1;
+    var editingCell = false;
+    var rhMenuOpen = false;
+    var editHistory = [];
+    var undoPosition = -1;
+    var curStartDrag = null;
+    var lsHasTable = false;
+    var lastEvent;
+
+    const SHOW = true;
+    const HIDE = false;
+    const UP = 0;
+    const DOWN = 1;
+    const LEFT = 3;
+    const RIGHT = 4;
+    const IS_ROW = true;
+    const IS_COL = false;
+
+    // ######################################################################
+
+
+    function insertRow(position, anUndo, doUpdateTable) {  // Insert a Row into the table
+
+      if (!anUndo) {
+        updateLastCellEdited(false, -1, -1);
+        rememberChange_I(position, 2, '');
+      }
+
+
+        var newStudent = [...defaultRow];
+
+      if (position < 0)
+        tableData.push(newStudent);
+      else
+        tableData.splice(position, 0, newStudent);
+      if (doUpdateTable)
+        updateTable();
+
+    } // END: function insertRow()
+
+
+    function insertCol(position, anUndo, doUpdateTable, colTitle) { // Insert a column into the database
+      var i;
+      if (position<0)
+        position = tableData[0].length + position;
+      if (!anUndo) {
+        updateLastCellEdited(false,-1,-1);
+        rememberChange_I(position, 1,colTitle);
+        assignmentCount++;
+      }
+
+      tableData[0].splice(position, 0, colTitle);
+      defaultRow.splice(position, 0, '-');
+      defaultRowTypes.splice(position, 0, '%');
+      placeHolder.splice(position, 0, '-');
+      for (i=1; i<tableData.length; i++) {
+        tableData[i].splice(position, 0, '-');
+      }
+      if (doUpdateTable)
+      updateTable();
+
+    } // END: function insertCol()
+
+    function rememberChange_I(selectedCorOrRow, editType, colTitle) {  // FOR UNDO: remember an insertion
+
+      var thisEdit;
+
+      if (editType == 1) { // 1 = a column
+        var thisEdit = {
+          editType: 1,
+          selectedCorOrRow: selectedCorOrRow,
+          colTitle: colTitle
+        };
+      } else {             // 2 = a row
+        var thisEdit = {
+          editType: 2,
+          selectedCorOrRow: selectedCorOrRow
+        };
+      }
+      undoPosition++;
+      //    remove any forward re-dos
+      editHistory.splice((undoPosition));
+
+      // add edit
+      editHistory.push(thisEdit);
+      refreshUndoButton();
+
+    } // END: function rememberChange_I()
+
+
+    function getRandomName() {
+      return cNames[(Math.floor(Math.random() * cNames.length))] + ' ' + sNames[(Math.floor(Math.random() * sNames.length))];
+    }
+
+
+    function getRandGrade() {
+      // first get category; LOW ; MED ; HIGH; LOW = LESS LIKELY MED= MOST LIKELY
+      var r = (Math.floor(Math.random() * 20)); 
+      var grade;
+      if (r<5) {
+        grade = (Math.floor(Math.random() * 65)); 
+      } else if (r<14) {
+        grade = 55 + (Math.floor(Math.random() * 46)); 
+      } else {
+        grade = 70 + (Math.floor(Math.random() * 31)); 
+      }
+      return grade;
+
+    } // END: function getRandGrade()
+
+
+
+    function getRandID() { // Create a random ID
+
+      // we could make this more sophisticated but it will do for demo purposes
+
+      var d = new Date();
+
+      var randID = "";
+      var year = d.getFullYear();
+      var picked = false;
+      var n;
+
+      do {
+        if (Math.random(5) < 4)
+          picked = true;
+        else
+          year--;
+
+      } while (!picked && year > 1970);
+      if (!picked)
+        year = d.getFullYear();
+
+      year = (year % 1000) % 100;
+      randID = "" + year;
+      n = (Math.floor(Math.random() * 1000000));
+      randID += "" + n;
+
+      return randID;
+    } // END: function getRandID()
+
+
+    function goRhMenu(menuNo, menuValue) { // When the user clicks an option in the 'RH click' menu 
+
+      if (menuNo == 0) {      // ############################## SIDE (ROW) MENU
+        var sr = selectedRow;
+      //  selectedRow = -1;
+
+        if (menuValue < 2) {
+          var insertionPoint = sr + menuValue;
+          if (menuValue===1) selectedRow++;
+          insertRow(insertionPoint, false, true);
+
+        } else if (menuValue == 2) {
+          selectedCol = -1;
+          selectedRow = sr;
+          deleteColsorRows(false);
+          updateTable();
+        }
+        else if (menuValue == 3) {  // set the row to random data
+          //we could change this to get data from a database
+
+
+          var newRow = [];
+          var acDif = 0;  // for the unsubmitted assignments difference
+
+          newRow.push(getRandomName());
+          newRow.push(tableData[sr][1] = getRandID());
+          for (var i = 2; i < (tableData[sr].length - 1); i++) {
+            newRow.push(getRandGrade());
+            if (tableData[sr][i] === defaultRow[i])
+              acDif++;
+          }
+          // add the averages col:
+          newRow.push('=avg()');
+
+          var oldRow = [...tableData[sr]];
+          tableData[sr] = [...newRow];
+
+          // ######################################### For UNDO - remember
+
+          // remember this in order to perhaps undo:
+          var thisEdit = {
+            editType: 6,
+            row: sr,
+            oldRow: oldRow,
+            newRow: newRow,
+            acDif: acDif
+          };
+          undoPosition++;
+          //    remove any forward re-dos
+          editHistory.splice((undoPosition));
+          // add edit
+          editHistory.push(thisEdit);
+          refreshUndoButton();
+
+          // ######################################### END: For UNDO - remember
+
+          unsubmittedAssignments -= acDif;
+          refreshAssignmentsDue();
+          refreshRow(sr);
+
+
+        } else if (menuValue === 4) {
+          selectedRow = sr;
+          goCell(event, sr, 0, true);
+
+        } else if (menuValue === 5) {
+          selectedRow = sr;          
+          goCell(event, sr, 1, true);      
+        }
+      } else {    // ############################## TOP (COL) MENU
+
+        var changed = false;
+        if (menuValue == 0) {
+          insertCol(selectedCol, false, true, 'Assignment ' + (assignmentCount + 1));
+          //selectedCol++;
+          changed = true;
+        } else if (menuValue == 1) {
+          insertCol(selectedCol + 1, false, true, 'Assignment ' + (assignmentCount + 1));
+          selectedCol++;
+          changed = true;
+        } else if (menuValue == 2) {
+          selectedRow = -1;
+          deleteColsorRows(false);
+          changed = true;
+        } else if (menuValue == 3) { // CHANGE COL NAME
+          goCell(event, 0, selectedCol, false);
+
+        }
+        if (changed)
+          updateTable();
+
+      }
+
+      closeRHMenu();
+
+    } // END: function goRhMenu()
+
+    function clone2DArray(original) {
+      var i;
+      var retArray = [];
+      for (i=0; i<original.length; i++)
+        retArray.push([...original[i]]);
+      return retArray;
+    }
+
+
+    function saveTable() {  // SAVES THE TABLE - we could add this to local storage usign JSON.stringify()
+
+      //console.log("ULE: ---" + currentEdit);
+      updateLastCellEdited(true, -1, -1);
+        savedTable = {
+          tableData: clone2DArray(tableData),
+        defaultRow: [...defaultRow],
+        placeHolder: [...placeHolder],
+        defaultRowTypes: [...defaultRowTypes],
+        assignmentCount: assignmentCount,
+        currentEdit: [...currentEdit],
+        averageDisplay:  averageDisplay
+        };
+        localStorage.setItem('savedTable', JSON.stringify(savedTable)); // save table in local storage
+        lsHasTable = true;
+
+        refreshClearLS();
+        refreshRetrieve();
+    } // END: function saveTable()
+
+
+    function retrieveTable() { // retrieves the saved table
+      
+      updateLastCellEdited(true, -1, -1);
+      if (savedTable!==null) {
+        tableData = clone2DArray(savedTable.tableData);  
+        defaultRow = [...savedTable.defaultRow];
+        placeHolder = [...savedTable.placeHolder];
+        defaultRowTypes = [...savedTable.defaultRowTypes];
+        assignmentCount = savedTable.assignmentCount;
+        currentEdit = [...savedTable.currentEdit];    //maybe ditch this
+        averageDisplay = savedTable.averageDisplay;
+
+        selectedRow = -1;
+        selectedCol = -1;
+        editHistory = []; // can't press undo button!
+        undoPosition = -1; // no undos yet!
+        refreshUndoButton();
+        updateTable();
+        currentEdit = [];
+      }
+    } // END: function retrieveTable()
+
+    function clearLS() {
+      updateLastCellEdited(true, -1, -1);
+      localStorage.clear();
+      lsHasTable = false;        
+      refreshClearLS();
+    }
+
+
+  // ################################################ FUNCTIONS FOR THE TABLE 
+
+  // this is a function to add the % cols of that row 
+  // - we could create more functions and use this table like a spreadsheet 
+
+    function go_avg_fn(row, col) {
+      var tot = 0, tot_rows = 0, curCell;
+      var fullCells = 0;
+
+      for (i = 0; i < tableData[0].length; i++) {
+        if (defaultRowTypes[i] == "%") {
+          curCell = tableData[row][i];
+
+          if (curCell == "-") {
+            curCell = 0;
+          } else {
+            fullCells++;
+            tot += parseInt(curCell);
+          }
+          tot_rows++;
+        }
+      }
+
+      if (fullCells < 1)
+        return -1
+      else
+        return Math.round((tot / (tot_rows * 100) * 100));
+
+    } // END: go_avg_fn
+
+
+  // ################################################ END: FUNCTIONS FOR THE TABLE 
+
+
+    function getGradeScale(grade) { // for the last col, if toggled to 'Grade Scale'
+      for (i = 0; i < gradeScale.length; i++) {
+        if (grade >= gradeScale[i].grade) {
+          if (averageDisplay === 1)
+            return gradeScale[i].letter;
+          else
+            return gradeScale[i].scale;
+        }
+      }
+      return "-";
+    } // END: function getGradeScale(grade)
+
+
+    // IMPORTANT: -------------------------- This prints all the non-title cells of the table
+
+    function printCell(row, col) {
+
+      var cellData;
+      var styleAlign = 0;
+      var styleType = 0;
+
+      if (row>0) {
+        if (tableData[row][col][0] !== "=") {
+        cellData = tableData[row][col];
+        if (defaultRowTypes[col] == "%") {
+          if (tableData[row][col] !== "-") {
+            cellData += "%";
+            styleAlign = 3; // right align
+          } else {
+            styleAlign = 2; // center align
+          }
+        } else {
+          styleAlign = 1; // left align
+        }
+
+      } else {
+        var i = tableData[row][col].indexOf("(");
+        var fn, params, i2;
+        if (i < 0) {
+          fn = tableData[row][col].substr(1)
+          params = "";
+        } else {
+          fn = tableData[row][col].substr(1, i - 1);
+          i2 = tableData[row][col].lastIndexOf(")");
+          if (i2 < 0)
+            params = "";
+          else {
+            params = tableData[row][col].substring(i + 1, i2);
+          }
+
+        }
+
+
+        if (fn === "avg") {
+          var avg = go_avg_fn(row, col);
+          //avg = 4;
+          if (avg === -1) {
+            cellData = '-';
+          } else {
+            if (avg >= 0 && avg < 60)
+              styleType = 6;
+
+            if (averageDisplay === 0) {
+              styleAlign = 3;  // right align
+              cellData = "" + avg + "&percnt;";
+            } else {
+              styleAlign = 2; // center align                
+              cellData = getGradeScale(avg);
+            }
+          }
+
+        } else { // extra functions can be added here
+          cellData = "fn:|" + fn + "|" + params + "|"; 
+        }
+      }
+
+      addToUSA = (defaultRowTypes[col] == '%' && cellData == '-'); 
+
+      if (cellData == "-") {
+        cellData = placeHolder[col];
+        styleType = 3;
+        styleAlign = 2; // center align
+      }
+
+      if (selectedRow === row || selectedCol === col) {
+        styleType++;
+        if (selectedRow === row && selectedCol === col) {
+          styleType++;
+        }
+
+        if (selectedRow===row && col<2) {
+          if (styleType!==4)
+              styleType = 2;
+//          else
+  //            styleType = 3;
+      }
+
+
+
+      }
+
+      return "<td class=\"t" + styleType + "\" Style=\"" + alignText[styleAlign] + "\" id=\"r" + row + "c" + col + "\" onclick=\"goMouseDown(event," + row + "," + col + ");\" onmouseover=\"goMouseOver(" + row + "," + col + ");\" onmouseup=\"rcUP(event);\" onmousedown=\"goMouseDown(event," + row + "," + col + ");\">" + cellData + "</td>";
+
+
+      } else {
+        
+        cellData = tableData[row][col];
+        styleType = (selectedCol===col) ? 2 : 10;
+        return "<th class=\"t" + styleType + "\" Style=\"" + alignText[styleAlign] + "\" id=\"r" + row + "c" + col + "\" onmouseover=\"goMouseOver(0,"+col+");\" onmousedown=\"goMouseDown(event,0," + col + ");\">" + cellData + "</th>";
+      }
+
+    
+
+    } // END: function printCell()
+
+
+    // the following allows the drag col/row operation:
+
+    function goMouseOver(row,col) {
+
+      if (curStartDrag!==null) {
+          if (curStartDrag[0] === 0) {  // drag a col
+
+              if (curStartDrag[1] !== col && col>1 && col < (tableData[0].length-1)) {
+                  document.body.style.cursor = "grabbing";
+                  swapCols(curStartDrag[1], col,true);
+                  setSelectedCol(col);
+                  curStartDrag[1] = col;
+              }
+
+          } else {    // drag a row
+
+              if (curStartDrag[1] !== row && col>-1 && row>0 && row < tableData.length) {
+                  swapRows(curStartDrag[1], row,true);
+                  setSelectedRow(row);
+                  curStartDrag[1] = row;
+              }
+
+
+          }       
+      }
+
+    } // END: function goMouseOver()
+
+
+    function refreshCell(row,col) {
+//      document.getElementById("_r"+row+"c"+col).blur();
+      document.body.style.cursor ="";
+      document.getElementById("r"+row+"c"+col).outerHTML = printCell(row,col);
+    }
+
+    function refreshHead(col) {
+      document.getElementById("r0c" + col).outerHTML = headingHTML(col);
+    }
+
+    function updateLastCellEdited(rePrint,row,col) {
+      var newCell = "";
+      editingCell = false;
+      if (currentEdit.length > 0) {
+        if ((currentEdit[0] !== row) || (currentEdit[1] !== col)) { // if we are on this cell do nothing
+          var input_Box = document.getElementById("inputBox2");
+          if (input_Box!==null) {
+                newCell = input_Box.textContent;
+          }
+            if (currentEdit[0]!==0) { // VALIDATE IF NOT EDITING THE COL NAME
+              newCell = validate(newCell,currentEdit[1]);
+            }
+            var acDif = 0;
+            if (defaultRowTypes[col] == '%')
+                acDif = checkAssignmentCount(newCell, col);
+
+            if ( tableData[currentEdit[0]][currentEdit[1]] !== newCell) { // if the cell is changed
+                rememberChange(currentEdit[0],currentEdit[1],tableData[currentEdit[0]][currentEdit[1]],newCell,acDif);
+                tableData[currentEdit[0]][currentEdit[1]] = newCell;
+            }
+
+            if (rePrint) {
+              refreshCell(currentEdit[0],currentEdit[1]);
+              if (currentEdit[0] !== 0 && row>-1) {
+                updateAverages(row);
+              }
+              
+            }
+
+            currentEdit = [];
+
+            //updateTable(); // replace with refresh averages
+        }
+
+      }
+    }
+
+    function updateAverages(row) {
+
+      var avgCol = tableData[row].length-1; // assumes this is last row in table (can change)
+      document.getElementById("r"+row+"c"+avgCol).outerHTML = printCell(row,avgCol);
+    }
+
+    function validate(data,col) {
+      if (defaultRowTypes[col] == "%") {
+        var i = parseInt(data);
+        if (isNaN(i) || i<0 || i>100) { // abcd
+          return("-");
+        } else {
+          return i;
+        }
+      } else if (defaultRowTypes[col] == "#") {
+        var i = parseInt(data);    
+        if (isNaN(i)) 
+          return "-";
+        else 
+          return i;
+      } else if (defaultRowTypes[col] == "T") {
+        if (data.length<1) 
+          return "-";
+        else 
+          return data;
+      } else {
+        return data;
+      }
+    }
+
+    function printUSA() {
+      return "<tr><td id=\"statBar\" colspan=\""+(tableData[0].length)+"\">ASSIGNMENTS NOT YET SUBMITTED: "+unsubmittedAssignments+"</td></tr>";
+        
+    }
+
+    function refreshAssignmentsDue() {
+      document.getElementById("statBar").outerHTML = printUSA();    
+    }
+
+    function checkAssignmentCount(newCell, col) {
+
+      var isDefault = newCell === defaultRow[col];
+      var acDif = 0;
+
+      if (editingEmptyCell && !isDefault)
+                        acDif = -1;
+                  else if (!editingEmptyCell && isDefault)
+                        acDif = 1;
+      if (acDif!==0) {
+        unsubmittedAssignments += acDif;
+        refreshAssignmentsDue();    
+      }
+
+        return acDif;        
+    }
+
+
+
+    function rememberChange(row,col,oldVal,newVal,acDif) {
+
+      var thisEdit = {
+          editType: 0,
+          row: row,
+          col: col,
+          oldVal,
+          newVal,
+          acDif: acDif
+        };
+        undoPosition++;
+
+      //    remove any forward re-dos
+
+      editHistory.splice((undoPosition));
+
+      // add edit
+        editHistory.push(thisEdit);
+        refreshUndoButton();
+
+ 
+    }
+
+    function goKeyUp(event, row, col) {
+
+      var rePrint = false;
+      var newCell;
+
+      lastEvent = event;
+      if (event.keyCode === 13 || event.keyCode === 9 || event.keyCode === 39 || event.keyCode === 37 || event.keyCode === 38 || event.keyCode === 40) { // CR or TAB
+        event.preventDefault();
+
+        const cT = event.currentTarget;
+        var acDif = 0;
+
+        if (row === 0) {
+          newCell = cT.textContent;
+        } else {
+          newCell = validate(cT.textContent, col);
+          if (defaultRowTypes[col] == '%')
+            acDif = checkAssignmentCount(newCell, col);
+
+
+        }
+
+
+        if (tableData[row][col] !== newCell) {
+
+          rememberChange(row, col, tableData[row][col], newCell, acDif);
+          tableData[row][col] = newCell;
+        }
+
+
+        const element = document.getElementById("r" + row + "c" + col);
+
+        rePrint = true;
+        editingCell = false;
+      } else if (event.keyCode === 27) { // ESCAPE KEY
+        event.preventDefault();
+        editingCell = false;
+        rePrint = true;
+      } else if (event.keyCode === 46) { // DELETE KEY
+        editingCell = false;
+        //console.log("DELETE-KEY");
+        event.preventDefault();
+
+        // ############################### 
+
+        const currentTarget = event.currentTarget;
+        newCell = validate("", col);
+        var acDif = 0;
+        if (defaultRowTypes[col] == '%')
+          acDif = checkAssignmentCount(newCell, col);
+
+        if (tableData[row][col] !== newCell) {
+          rememberChange(row, col, tableData[row][col], newCell, acDif);
+
+          tableData[row][col] = newCell;
+        }
+        // ###############################
+        rePrint = true;
+      }
+      if (rePrint) {
+        refreshCell(row, col);
+        if (row !== 0) {
+          updateAverages(row);
+        }
+
+        currentEdit = [];
+      }
+
+      if (event.keyCode === 9 || event.keyCode === 39) {
+
+        huntNextCell(event, row, col, RIGHT);
+      } else if (event.keyCode === 37) {
+        huntNextCell(event, row, col, LEFT);
+      } else if (event.keyCode === 38) {
+        huntNextCell(event, row, col, UP);
+      } else if (event.keyCode === 40) {
+        huntNextCell(event, row, col, DOWN);
+      }
+
+    } // END: function goKeyUp()
+
+  function huntNextCell(event, row, col, direction) {       //  hunt next available cell for editing
+
+      // DIRECTION = UP DOWN LEFT RIGHT
+      var foundCell = false;
+      var x = col;
+      var y = row;
+
+
+
+      if (direction === UP) {
+        do {
+          if (y > 1) {  // cant edit last cell
+            y--;
+          } else {
+            y = tableData.length - 1;
+          }
+
+          if (defaultRowTypes[x] == '%' || tableData[y][x] == '-')
+            foundCell = true;
+
+        } while (!(foundCell || (x == col && y == row)));  // avoid infinte loop! 
+
+      } else if (direction === DOWN) {
+        do {
+          if (y < tableData.length - 1) {  // cant edit last cell
+            y++;
+          } else {
+            y = 1;
+          }
+
+          if (defaultRowTypes[x] == '%' || tableData[y][x] == '-')
+            foundCell = true;
+
+        } while (!(foundCell || (x == col && y == row)));  // avoid infinte loop! 
+
+      }
+
+
+      /// ###########################
+
+      if (direction === RIGHT) {
+        do {
+
+          if (x < (tableData[0].length - 2)) {  // cant edit last cell
+            x++;
+          } else {
+            x = 0;                // might be able to edit cells 1-2 if new
+            if (y < (tableData.length - 1)) {
+              y++;
+            } else {
+              y = 1;        // col 0 = headings
+            }
+          }
+
+          if (defaultRowTypes[x] == '%' || tableData[y][x] == '-')
+            foundCell = true;
+
+        } while (!(foundCell || (x == col && y == row)));  // avoid infinte loop! 
+
+      } else if (direction === LEFT) {
+        do {
+
+          if (x > 0) {  // cant edit last cell
+            x--;
+          } else {
+            x = (tableData[0].length - 2);
+            if (y > 1) {
+              y--;
+            } else {
+              y = (tableData.length - 1);
+            }
+          }
+
+          if (defaultRowTypes[x] == '%' || tableData[y][x] == '-')
+            foundCell = true;
+
+        } while (!(foundCell || (x == col && y == row)));  // avoid infinte loop! 
+
+      }
+
+
+      if (foundCell) {
+        goMouseDown(event, y, x);
+      } else {
+        editingCell = false;
+      }
+
+
+    } // END: function huntNextCell()
+
+
+  
+
+    function showOutside(showMenu) {
+      var el = document.getElementById("outside"); 
+      if (showMenu) {
+        el.style.display = "block";
+        el.style.height = document.body.scrollHeight;
+      } else {
+        el.style.display = "none";
+        el.style.height = 0;
+      }
+
+    }
+
+    function rcMenu(showMenu, menuNo) {
+      // abcd
+      var rcMenuElement = document.getElementById("rc_menu");
+//      rhMenuData
+      if (showMenu) {
+        if (rhMenuData.curMenuNo !== menuNo) {
+              rhMenuData.curMenuNo = menuNo;
+              // redraw menu
+
+              var menuHTML = "<div class=\"rhMenu\"><table class=\"container\"><tbody>";
+              for (var i=0; i<rhMenuData.menuItems[menuNo].length; i++) {
+                menuHTML += "<tr><td><div class=\"menuItem\" onclick=\"goRhMenu("+menuNo + "," + i + ");\">"+rhMenuData.menuItems[menuNo][i]+"</div></td></tr>";
+               }
+              menuHTML += "</tbody></table></div>";
+              document.getElementById("rc_menu").innerHTML = menuHTML;
+         }
+
+      rcMenuElement.style.display = "block"; 
+      } else {
+        rcMenuElement.style.display = "none"; 
+      }
+
+    }
+
+    function closeRHMenu() {
+      rhMenuOpen = false;
+      showOutside(HIDE);
+      rcMenu(HIDE, 0);
+    }
+
+
+    function clearRhMenu() {
+
+      if (selectedRow > -1) {
+        var row = selectedRow;
+        selectedRow = -1;
+        refreshRow(row);
+      }
+
+      closeRHMenu();
+
+    } // END: function clearRhMenu()
+
+    function goMouseDownTOG(col) {
+      goToggleLastCol(col);
+    }
+
+    function goMouseDown(event,row,col) {
+
+      var rightButton = false;
+      if ("which" in event)  // Chrome, Safari, Firefox & Opera
+         rightButton = event.which == 3; 
+       else if ("button" in event)  // IE, Opera 
+         rightButton = event.button == 2;
+
+      if (rightButton) {
+
+        goRightClick(row,col);
+      } else {
+
+          if (row===0) {
+            if (col<tableData[0].length-1) {
+              // potentially start a drag - or a col, thus the '0,'
+              curStartDrag = [0,col,col,selectedCol];
+              updateLastCellEdited(true, -1, -1);
+              ensureColSelected(col);
+            }
+
+          } else {
+            goCell(event, row, col,false);
+          }
+          if (row===0 || col===0 && !editingCell) {
+            if (col<tableData[0].length-1)
+                document.body.style.cursor = "grab"; 
+          }
+
+
+      }
+
+
+    }
+
+    function goMouseUp() { // CHECKS TO SEE IF A ROW/COL DRAG IS HAPPENING
+
+      //var tType=["COL","ROW"]
+      if (curStartDrag!==null) {
+
+        if (curStartDrag[1] !== curStartDrag[2]) {
+
+          // save to history
+
+          var thisEdit = {
+            editType: 5,
+            swapType: curStartDrag[0],
+            rowOrColA: curStartDrag[1],
+            rowOrColB: curStartDrag[2]
+          };
+          undoPosition++;
+          //    remove any forward re-dos
+          editHistory.splice((undoPosition));
+          // add edit
+          editHistory.push(thisEdit);
+          refreshUndoButton();
+        } else {
+
+            if (curStartDrag[1]===curStartDrag[3]) {
+              if (curStartDrag[0]===0)
+                  hilightCol(-1);
+              else
+                  hilightRow(-1);
+            }
+        }
+
+
+        curStartDrag = null;
+        document.body.style.cursor = "";
+      }
+
+    }
+
+      function goRightClick(row, col) {
+
+        event.preventDefault();
+
+        if (!rhMenuOpen) {
+          updateLastCellEdited(true, -1, -1);
+          var menuNo;
+
+          if (row === 0) {  // click on col description row
+            menuNo = 1;
+            if (selectedCol !== col) {
+              hilightCol(col);
+            }
+
+          } else {
+            menuNo = 0;
+            if (selectedRow !== row) {
+              hilightRow(row);
+            } else {
+              refreshCell_(row, col);
+            }
+
+          }
+
+          rcMenu(SHOW, menuNo);
+          showOutside(SHOW);
+
+          document.getElementById("rc_menu").style.left = event.pageX;
+          document.getElementById("rc_menu").style.top = event.pageY;
+
+
+        } else {
+          closeRHMenu();
+        }
+
+      } // END: function goRightClick()
+
+
+    function goCell(event, row, col, editAnyway) {               // NB: Important - a cell is clicked
+      event.preventDefault();
+
+      rcMenu(HIDE, 0);
+
+      const element = document.getElementById("r" + row + "c" + col);
+
+      updateLastCellEdited(true, row, col);
+
+      if (defaultRowTypes[col] == '%' || tableData[row][col] == '-' || editAnyway) { // if this cell is editable
+        editingCell = true;
+        var cellData, place_Holder = '';
+        if (tableData[row][col] !== defaultRow[col]) {
+          editingEmptyCell = false;
+          cellData = tableData[row][col];
+        } else {
+          editingEmptyCell = true;
+          cellData = "";
+          place_Holder = "placeholder=\"Enter " + tableData[0][col] + "\" ";
+        }
+
+
+        currentEdit = [row, col];
+        var cellData = (tableData[row][col] !== defaultRow[col]) ? tableData[row][col] : "";
+        //"<span contenteditable=\"true\">sdfsd</span>"
+
+        //element.innerHTML="<span class='menu' id='ed1'></span>";
+        
+//        element = document.getElementById("r"+row+"c"+col);
+        
+        //element.contentEditable = true;
+    
+        var e1 = element.getBoundingClientRect();
+
+        element.innerHTML = "<div style=\"color:black;\" contenteditable=\"true\" id=\"inputBox2\" onkeydown=\"goKeyUp(event," + row + "," + col + ");\">" + cellData + "</div>";
+        var element3 = document.getElementById("inputBox2");
+        //element3.focus();
+        element.style.padding = "3px";
+        element.style.background = "white";
+        element.style.border = "black solid 4px";
+        var range = document.createRange();
+        range.selectNodeContents(element3);
+        var sel = window.getSelection();
+        sel.removeAllRanges();
+         sel.addRange(range);
+
+   //     console.log(el2_rect.top, el2_rect.right, el2_rect.bottom, el2_rect.left);
+//        element2.style.left = el2_rect.left;
+//        element2.style.top = el2_rect.top;
+ //       element2.style.width = 50; //el2_rect.right - el2_rect.left;
+ //       element2.style.height = 30; //el2_rect.bottom - el2_rect.top;
+
+        //var inputBox = document.getElementById("_r" + row + "c" + col);
+
+//        var inputBox = document.getElementById("_r" + row + "c" + col);
+ //       if (inputBox !== null) {
+//          inputBox.focus();
+//          inputBox.select();
+   //     }
+
+      } else if (col === 0) {
+
+        curStartDrag = [1, row, row, selectedRow];
+        ensureRowSelected(row);
+      }
+
+
+    } // END: function goCell()
+
+    function ensureColSelected(col) {
+        if (col!==selectedCol)
+            hilightCol(col);
+    }
+    
+    function ensureRowSelected(row) {
+      if (row!==selectedRow)
+            hilightRow(row);
+    }
+
+    function refreshRow(row) {
+      for (var i=0; i<tableData[0].length; i++) {
+          document.getElementById("r"+row+"c"+i).outerHTML = printCell(row,i);
+      }
+
+    }
+
+    function refreshCell_(row,col) {
+      document.getElementById("r"+row+"c"+col).outerHTML = printCell(row,col);
+    }
+
+    function refreshCol(col) {
+
+      document.getElementById("r0c"+col).outerHTML = headingHTML(col);
+      for (var i=1; i<tableData.length; i++) {
+        document.getElementById("r"+i+"c"+col).outerHTML = printCell(i,col);
+      }
+    }
+
+    function hilightRow(row) {
+
+      var lastHL = selectedRow;
+
+      if (row>-1) {
+
+        if (selectedRow == row) {
+        selectedRow = -1;
+        refreshRow(row); 
+      } else {
+        selectedRow = row;
+        refreshRow(selectedRow);
+        if (lastHL >= 0) {
+          refreshRow(lastHL);
+        }
+      }
+
+      } else {
+        if (selectedRow > -1) {
+            selectedRow = -1;
+            refreshRow(lastHL);
+          }        
+      }
+
+
+
+    }
+
+    function hilightCol(col) {
+
+        var lastHL = selectedCol;
+
+        if (col>-1) {
+              if (selectedCol == col) {
+                selectedCol = -1;
+                refreshCol(col); 
+              } else {
+                selectedCol = col;
+                refreshCol(selectedCol);
+                if (lastHL >= 0) {
+                  refreshCol(lastHL);
+                }
+              }
+
+        } else {
+          if (selectedCol > -1) {
+            selectedCol = -1;
+            refreshCol(lastHL);
+          }
+
+        }
+
+
+
+    }
+
+
+
+function toggleLastCol() {
+
+  if (++averageDisplay>2)
+    averageDisplay = 0;
+
+  updateLastCellEdited(false,-1,-1);
+  refreshCol(tableData[0].length-1);
+//  updateTable(); 
+
+}
+
+
+function goToggleLastCol(col) {
+
+  updateLastCellEdited(true,-1,-1);
+  if (col === (tableData[0].length-1)) {
+    toggleLastCol();
+  }
+}
+
+function rcUP(event) {
+  event.preventDefault();
+}
+
+function headingHTML(col) {
+
+  var headHTML;
+
+  if (col < tableData[0].length-1) {
+    headHTML = "<th class=\"t"+((selectedCol===col) ? 2 : 10)+"\" id=\"r0c"+col+"\" onmouseover=\"goMouseOver(0,"+col+");\"";
+      if (col>1) headHTML +=" onmousedown=\"goMouseDown(event,0,"+col+");\"";
+    headHTML +=">" + tableData[0][col] + "</th>";
+  } else {
+    headHTML = "<th id=\"r0c"+col+"\" class=\"t10\" style=\"cursor: pointer;\" onmouseover=\"goMouseOver(0," + col + ");\" onmousedown=\"toggleLastCol();\">" + tableData[0][col][averageDisplay] + "</th>";
+    //console.log("'"+headHTML+"'");
+
+//    styleType = ;
+//        return "<th class=\"t" + styleType + "\" Style=\"" + alignText[styleAlign]
+
+  }
+
+  return headHTML;
+}
+
+      function updateTable() {             // NB: reprints the entire table
+
+        var tableHTML;
+        var i;
+        if (tableData.length > 1) {
+          unsubmittedAssignments = 0;
+          tableHTML = "<table class=\"flexiTable\"><tbody><tr>";
+          for (ii = 0; ii < (tableData[0].length); ii++) {
+            tableHTML += headingHTML(ii);
+
+          }
+
+
+          //  onmousedown=\"goMouseDown(event,0,"+col+");\"";
+        //        onclick=\"goMouseDown(event,0," + ii + ");\">"
+
+          //tableHTML += "<th id=\"r0c"+ii+"\" class=\"t10\" onmouseover=\"goMouseOver(0," + ii + ");\" onmousedown=\"toggleLastCol();\">" + tableData[0][ii][averageDisplay] + "</th>";
+
+          tableHTML += "</tr>";
+          for (i = 1; i < tableData.length; i++) {
+            tableHTML += "<tr>";
+            for (ii = 0; ii < tableData[i].length; ii++) {
+              tableHTML += printCell(i, ii);
+              if (addToUSA) {
+                unsubmittedAssignments++;
+              }
+
+            }
+            tableHTML += "</tr>";
+          }
+          tableHTML += printUSA();
+          tableHTML += "</tbody></table>";
+
+        } else {
+          tableHTML = "No table exists";
+        }
+        document.getElementById("interactiveTable").innerHTML = tableHTML;
+
+      } // END: function updateTable()
+
+    function generateRandomNames() {
+      // ['Bob','1234567','100','100','100','100','100','=avg()']
+      var i, ii;
+
+      for (i = 0; i < 10; i++) {
+        var record = [];
+        record.push(getRandomName());
+        record.push(getRandID());
+        for (ii = 2; ii < (tableData[0].length - 1); ii++) {
+          record.push(getRandGrade());
+        }
+        record.push('=avg()');
+        tableData.push(record);
+      }
+
+    } // END: function generateRandomNames()
+
+
+function refreshUndoButton() {
+  document.getElementById("mi_undo").className = (editHistory.length > 0 && undoPosition > -1) ? "menuItem" : "menuItem_disabled";
+  document.getElementById("mi_redo").className = (editHistory.length > 0 && (undoPosition+1) < editHistory.length ) ? "menuItem" : "menuItem_disabled";
+}
+
+function refreshRetrieve() {
+  document.getElementById("mi_retb").className = (savedTable!==null) ? "menuItem" : "menuItem_disabled";
+}
+
+function refreshClearLS() {
+  document.getElementById("mi_ls").className = (lsHasTable) ? "menuItem" : "menuItem_disabled";
+}
+
+    function onLoadFunction() {
+
+      // get saved table from local storage:
+
+      var savedTable_JSON = localStorage.getItem('savedTable');
+      if (savedTable_JSON !==null) {
+        savedTable = JSON.parse(savedTable_JSON);
+        lsHasTable = true;
+      } else {
+        lsHasTable = false;
+      }
+
+        
+      refreshClearLS();
+      refreshUndoButton();
+      refreshRetrieve();
+      refreshClearLS();
+
+      for (var i=2; i<7; i++)
+          insertCol(i,true,false,'Assignment ' + (i-1));
+      assignmentCount = 5;
+      generateRandomNames();
+      updateTable();
+      window.focus();
+
+
+    } // function onLoadFunction()
+
+    function insertColsorRows() {
+      var changed = false;
+      if (selectedRow>0) {  // Row 0 contains our headings data
+        insertRow(selectedRow,false, true);
+        selectedRow++;
+        changed = true;
+      }
+      if (selectedCol>1) { // Empty table still has headings on Row 0 
+        
+        insertCol(selectedCol, false, true,'Assignment ' + (assignmentCount+1)); 
+
+        selectedCol++;
+        changed = true;
+      }      
+      if (changed)
+        updateTable();
+    }
+
+    function rippleSwapCol(colA, colB) { // NB: very complex method to undo a drag col
+
+      var switchType;
+
+      if (colA > colB) { // make sure lowest is first
+        var t = colA;
+        colA = colB;
+        colB = t;
+        switchType = 1;
+      } else if (colA < colB) {
+        switchType = 2;
+      } else {
+        switchType = 0;
+      }
+
+
+      // Step 1: backup colA:
+
+      var i, ii;
+      var tempCol = [];
+
+      if (switchType === 1) {
+
+        var tempHeaders = {
+          defaultRow: defaultRow[colB],
+          placeHolder: placeHolder[colB],
+          defaultRowTypes: defaultRowTypes[colB]
+        };
+
+        for (i = 0; i < tableData.length; i++) {
+          tempCol.push(tableData[i][colB]);
+        }
+
+        // step 2: swap from a+1 to b, all -1:
+
+        for (ii = colB; ii > colA; ii--) {
+          for (i = 0; i < tableData.length; i++) {
+            tableData[i][ii] = tableData[i][ii - 1];
+          }
+          defaultRow[ii] = defaultRow[ii - 1];
+          placeHolder[ii] = placeHolder[ii - 1];
+          defaultRowTypes[ii] = defaultRowTypes[ii - 1];
+
+        }
+
+        // step 3: put the temps in place
+
+        for (i = 0; i < tableData.length; i++) {
+          tableData[i][colA] = tempCol[i];
+        }
+
+        defaultRow[colA] = tempHeaders.defaultRow;
+        placeHolder[colA] = tempHeaders.placeHolder;
+        defaultRowTypes[colA] = tempHeaders.defaultRowTypes;
+
+
+      } else if (switchType === 2) {
+
+        // Step 1: backup colA:
+
+
+        var tempHeaders = {
+          defaultRow: defaultRow[colA],
+          placeHolder: placeHolder[colA],
+          defaultRowTypes: defaultRowTypes[colA]
+        };
+
+        for (i = 0; i < tableData.length; i++) {
+          tempCol.push(tableData[i][colA]);
+        }
+
+        // step 2: swap from a+1 to b, all -1:
+
+        for (ii = colA; ii < colB; ii++) {
+          for (i = 0; i < tableData.length; i++) {
+            tableData[i][ii] = tableData[i][ii + 1];
+          }
+          defaultRow[ii] = defaultRow[ii + 1];
+          placeHolder[ii] = placeHolder[ii + 1];
+          defaultRowTypes[ii] = defaultRowTypes[ii + 1];
+
+        }
+
+        // step 3: put the temps in place
+
+        for (i = 0; i < tableData.length; i++) {
+          tableData[i][colB] = tempCol[i];
+        }
+
+        defaultRow[colB] = tempHeaders.defaultRow;
+        placeHolder[colB] = tempHeaders.placeHolder;
+        defaultRowTypes[colB] = tempHeaders.defaultRowTypes;
+
+      }
+
+
+      // REFRESH COLS
+
+      for (i = colA; i <= colB; i++) {
+        refreshCol(i);
+        document.getElementById("r0c" + i).outerHTML = headingHTML(i);
+      }
+
+
+
+    } // END: function rippleSwapCol()
+
+//#####################################################################################################
+
+    function rippleSwapRow(rowA, rowB) { // // NB: very complex method to undo a drag row
+
+
+      var switchType;
+
+      if (rowA > rowB) { // make sure lowest is first
+        var t = rowA;
+        rowA = rowB;
+        rowB = t;
+        switchType = 1;
+      } else if (rowA < rowB) {
+        switchType = 2;
+      } else {
+        switchType = 0;
+      }
+
+
+      // Step 1: backup rowA:
+
+      var i, ii;
+      var tempRow = [];
+
+      if (switchType === 1) {
+
+        tempRow = [...tableData[rowB]];
+
+        // step 2: swap from a+1 to b, all -1:
+
+        for (ii = rowB; ii > rowA; ii--) {
+          tableData[ii] = [...tableData[ii - 1]];
+
+        }
+
+        // step 3: put the temps in place
+
+        tableData[rowA] = [...tempRow];
+
+
+
+      } else if (switchType === 2) {
+
+
+
+        // Step 1: backup rowA:
+
+        tempRow = [...tableData[rowA]];
+
+        // ###################################################### DONE UP TO HERE
+
+        // step 2: swap from a+1 to b, all -1:
+
+        for (ii = rowA; ii < rowB; ii++) {
+          tableData[ii] = [...tableData[ii + 1]];
+        }
+
+        // step 3: put the temps in place
+
+        tableData[rowB] = [...tempRow];
+
+      }
+
+
+      // REFRESH ROWS
+
+      for (i = rowA; i <= rowB; i++) {
+        refreshRow(i);
+      }
+
+
+
+    } // END: function rippleSwapRow()
+
+
+    // #########################################################################
+    // NB: IMPORTANT FUNCTIONS: UNDO & REDO:
+    // #########################################################################
+
+
+    function undoLastEdit() {
+
+      if (currentEdit.length > 0) {
+        refreshCell(currentEdit[0], currentEdit[1]);
+        currentEdit = [];
+      }
+
+
+      if (editHistory.length > 0 && undoPosition > -1) {
+
+        if (editHistory[undoPosition].editType === 1) { // UNDO INSERT COL
+          deleteCol(editHistory[undoPosition].selectedCorOrRow, true, true);
+          // this is in the above function ->>>>>updateTable();
+        } else if (editHistory[undoPosition].editType === 2) { // UNDO INSERT ROW
+          deleteRow(editHistory[undoPosition].selectedCorOrRow, true, true);
+          // this is in the above function ->>>>>updateTable();   updateTable();
+        } else if (editHistory[undoPosition].editType === 3) { // UNDO COL DELETE
+          tableData.splice(editHistory[undoPosition].deletedRow, 0, editHistory[undoPosition].data);
+          updateTable();
+        } else if (editHistory[undoPosition].editType === 4) { // UNDO ROW DELETE
+          for (var i = 0; i < tableData.length; i++) {
+            tableData[i].splice(editHistory[undoPosition].deletedCol, 0, editHistory[undoPosition].data[i]);
+          }
+          defaultRow.splice(editHistory[undoPosition].deletedCol, 0, editHistory[undoPosition].defaultRow);
+          placeHolder.splice(editHistory[undoPosition].deletedCol, 0, editHistory[undoPosition].placeHolder);
+          defaultRowTypes.splice(editHistory[undoPosition].deletedCol, 0, editHistory[undoPosition].defaultRowTypes);
+          updateTable();
+        } else if (editHistory[undoPosition].editType === 5) {
+          if (editHistory[undoPosition].swapType === 0) { // COL SWAP
+
+            rippleSwapCol(editHistory[undoPosition].rowOrColA,
+              editHistory[undoPosition].rowOrColB);
+          } else {
+
+            rippleSwapRow(editHistory[undoPosition].rowOrColA,
+              editHistory[undoPosition].rowOrColB);
+          }
+
+        } else if (editHistory[undoPosition].editType === 6) {
+
+          tableData[editHistory[undoPosition].row] = [
+            ...editHistory[undoPosition].oldRow
+          ];
+          unsubmittedAssignments += editHistory[undoPosition].acDif;
+          refreshAssignmentsDue();
+          refreshRow(editHistory[undoPosition].row);
+        }
+
+        if (editHistory[undoPosition].editType === 0) { // UNDO EDIT COL
+
+          tableData[editHistory[undoPosition].row][editHistory[undoPosition].col] = editHistory[undoPosition].oldVal;
+
+          // If it's a heading: undo is different:
+
+          if (editHistory[undoPosition].row === 0) {
+            refreshHead(editHistory[undoPosition].col);
+          } else {
+
+            if (editHistory[undoPosition].acDif === -1 || editHistory[undoPosition].acDif === 1) {
+              unsubmittedAssignments -= editHistory[undoPosition].acDif;
+              refreshAssignmentsDue();
+            }
+
+            refreshCell_(editHistory[undoPosition].row, editHistory[undoPosition].col);
+            refreshCell_(editHistory[undoPosition].row, tableData[0].length - 1); // refresh averages col
+          }
+
+        }
+        undoPosition--;
+        refreshUndoButton();
+
+      }
+
+    } // END: function undoLastEdit()
+
+
+
+    // #########################################################################
+
+
+    function redoLastEdit() {         // REDO!
+
+      if (currentEdit.length > 0) {
+        refreshCell(currentEdit[0], currentEdit[1]);
+        currentEdit = [];
+      }
+
+
+      if (editHistory.length > 0 && (undoPosition + 1) < editHistory.length) {
+
+        undoPosition++;
+        refreshUndoButton();
+
+        if (editHistory[undoPosition].editType === 1) { // REDO INSERT COL
+          insertCol(editHistory[undoPosition].selectedCorOrRow, true, true, editHistory[undoPosition].colTitle);
+
+        } else if (editHistory[undoPosition].editType === 2) { // REDO INSERT ROW
+          insertRow(editHistory[undoPosition].selectedCorOrRow, true, true);
+
+        } else if (editHistory[undoPosition].editType === 4) { // REDO COL DELETE
+
+          deleteCol(editHistory[undoPosition].deletedCol, true, true);      // <------------------    
+
+        } else if (editHistory[undoPosition].editType === 3) { // REDO ROW DELETE 
+          deleteRow(editHistory[undoPosition].deletedRow, true, true);
+        } if (editHistory[undoPosition].editType === 0) { // REDO EDIT COL
+
+          tableData[editHistory[undoPosition].row][editHistory[undoPosition].col] = editHistory[undoPosition].newVal;
+
+          // If it's a heading: redo is different:
+
+          if (editHistory[undoPosition].row === 0) {
+            refreshHead(editHistory[undoPosition].col);
+          } else {
+
+            if (editHistory[undoPosition].acDif === -1 || editHistory[undoPosition].acDif === 1) {
+              unsubmittedAssignments += editHistory[undoPosition].acDif;
+              refreshAssignmentsDue();
+            }
+
+            refreshCell_(editHistory[undoPosition].row, editHistory[undoPosition].col);
+            refreshCell_(editHistory[undoPosition].row, tableData[0].length - 1); // refresh averages col
+
+          }
+
+
+        } else if (editHistory[undoPosition].editType === 5) {
+          if (editHistory[undoPosition].swapType === 0) { // COL SWAP
+
+            rippleSwapCol(editHistory[undoPosition].rowOrColB,
+              editHistory[undoPosition].rowOrColA);
+          } else {
+
+            rippleSwapRow(editHistory[undoPosition].rowOrColB,
+              editHistory[undoPosition].rowOrColA);
+
+          }
+
+        } else if (editHistory[undoPosition].editType === 6) {
+
+          tableData[editHistory[undoPosition].row] = [
+            ...editHistory[undoPosition].newRow
+          ];
+          unsubmittedAssignments -= editHistory[undoPosition].acDif;
+          refreshAssignmentsDue();
+          refreshRow(editHistory[undoPosition].row);
+        }
+
+      }
+
+    } // END: function redoLastedit()
+
+
+    function deleteRow(row, anUndo, doUpdateTable) {
+
+      if (!anUndo) {  // save if not an undo
+        var thisEdit = {
+          editType: 3,
+          deletedRow: row,
+          data: [...tableData[row]]
+        };
+        undoPosition++;
+        //    remove any forward re-dos
+        editHistory.splice((undoPosition));
+        // add edit
+        editHistory.push(thisEdit);
+        refreshUndoButton();
+      }
+      refreshUndoButton();
+
+
+      tableData.splice(row, 1);
+      if (selectedRow >= tableData.length)
+        selectedRow--;
+      if (doUpdateTable) // false saves duplication in the below functions 
+        updateTable();
+
+    } // END: function deleteRow()
+
+
+    function deleteCol(col, anUndo, doUpdateTable) {
+
+      var deletedCol = [];
+      for (var i = 0; i < tableData.length; i++) {
+        deletedCol.push(tableData[i][col]);
+        tableData[i].splice(col, 1);
+      }
+      if (!anUndo) {
+        thisEdit = {
+          editType: 4,
+          deletedCol: col,
+          data: deletedCol,
+          defaultRow: defaultRow[col],
+          placeHolder: placeHolder[col],
+          defaultRowTypes: defaultRowTypes[col]
+        };
+        undoPosition++;
+        //    remove any forward re-dos
+        editHistory.splice((undoPosition));
+        // add edit
+        editHistory.push(thisEdit);
+        refreshUndoButton();
+      }
+
+
+      defaultRow.splice(col, 1);
+      placeHolder.splice(col, 1);
+      defaultRowTypes.splice(col, 1);
+
+      // averageDisplay;
+
+      if (selectedCol >= (tableData[0].length - 1))
+        selectedCol--;
+      if (tableData[0].length < 4 || selectedCol == (tableData[0].length - 1))
+        selectedCol = -1;
+
+      if (doUpdateTable) // false saves duplication in the below functions 
+        updateTable();
+
+    } // END: function deleteCol()
+
+
+    function deleteColsorRows(anUndo) {
+
+      var changed = false;
+
+      if (selectedRow > 0) {  // Row 0 contains our headings data
+        deleteRow(selectedRow, anUndo, false);
+        changed = true;
+      }
+
+      if (selectedCol>1 && tableData.length>1) { // Empty table still has headings on Row 0 
+        deleteCol(selectedCol, anUndo,false);
+        changed = true;
+      }      
+      if (changed)
+        updateTable();
+
+    } // END: function deleteColsorRows()
+
+
+    function setSelectedCol(newSelectedCol) {
+      var oldSelectedCol = selectedCol;
+
+
+      if (tableData[0].length > 3 && selectedCol !== newSelectedCol) {
+        if (newSelectedCol > (tableData[0].length - 2))
+          selectedCol = 2;
+        else if (newSelectedCol < 2)
+          selectedCol = tableData[0].length - 2;
+        else
+          selectedCol = newSelectedCol;
+
+        if (oldSelectedCol > -1)
+          refreshCol(oldSelectedCol);
+
+        refreshCol(selectedCol);
+      }
+
+    } // END: function setSelectedCol()
+
+
+    function setSelectedRow(newSelectedRow) {
+
+      var oldSelectedRow = selectedRow;
+
+      if (tableData.length>1 && selectedRow !== newSelectedRow) {
+        if (newSelectedRow >= (tableData.length))
+            selectedRow = 1;
+        else if (newSelectedRow < 1)
+            selectedRow = tableData.length-1;            
+          else
+            selectedRow = newSelectedRow;
+
+            if (oldSelectedRow>-1)
+               refreshRow(oldSelectedRow);
+            refreshRow(selectedRow);
+      }
+
+    }
+
+    function checkKey() {
+      //console.log("KC: " + event.keyCode + " EC: " + editingCell + " : " + (event !== lastEvent) );
+      if (!editingCell && event !== lastEvent) {
+        //console.log(event.keyCode);
+
+        if (event.keyCode == 46) {
+              deleteColsorRows(false);
+        } else if (event.keyCode == 45) {  //insertSelectedRows
+          insertColsorRows();
+        }
+        else if (event.keyCode == 38) {  // UP
+          event.preventDefault();
+          setSelectedRow(selectedRow - 1);
+        }
+        else if (event.keyCode == 40) {  // DOWN
+          event.preventDefault();
+          setSelectedRow(selectedRow + 1);
+        }
+        else if (event.keyCode == 37) {  // LEFT
+          event.preventDefault();
+          setSelectedCol(selectedCol - 1);
+        }
+        else if (event.keyCode == 39) {  // RIGHT
+          event.preventDefault();
+          setSelectedCol(selectedCol + 1);
+        }
+        else if (event.keyCode == 13) {  // RIGHT
+          event.preventDefault();
+          if (selectedRow >-1) {
+            if(selectedCol>-1)
+              goCell(event,selectedRow,selectedCol);
+            else
+              huntNextCell(event, selectedRow, -1, RIGHT);
+//              goCell(event,selectedRow,2);
+          } else if(selectedCol>-1)
+              goCell(event,1,selectedCol);
+        }
+        else if (event.keyCode == 27) {  // RIGHT
+          event.preventDefault();
+          if (selectedRow >-1)
+            hilightRow(-1);
+          else if(selectedCol>-1)
+            hilightCol(-1);
+        }
+      }
+      if (event.ctrlKey) {
+          if (event.keyCode == 90) {  //ctrl-z - undo
+            // call undo function
+            undoLastEdit();
+          } else if (event.keyCode == 89) {  //ctrl-y - redo
+            // call redo function
+            redoLastEdit();
+          }
+      }
+//       if (event.keyCode == 9) { // tab key
+//        event.preventDefault();
+//      }
+
+    } // END: function checkKey()
+
+
+    function swapRows(rowA, rowB, doRefresh) {
+      if (rowA >= 0 && rowA < tableData.length && rowB >= 0 && rowB < tableData.length) {
+        var tempRow = [...tableData[rowB]];
+        tableData[rowB] = [...tableData[rowA]];
+        tableData[rowA] = [...tempRow];
+        if (doRefresh) {
+          refreshRow(rowA);
+          refreshRow(rowB);
+        }
+
+      }
+
+    } // function swapRows()
+
+
+
+    function swapCols(colA, colB, doRefresh) {
+      if (colA > 1 // this '1' could be -1, and the table would function
+        && colA < (tableData[0].length - 1) && colB > 1 && colB < (tableData[0].length - 1)) {
+        var tempCell;
+        for (var i = 0; i < tableData.length; i++) {
+          tempCell = tableData[i][colB];
+          tableData[i][colB] = tableData[i][colA];
+          tableData[i][colA] = tempCell;
+        }
+
+        var temp = defaultRow[colA];
+        defaultRow[colA] = defaultRow[colB];
+        defaultRow[colB] = temp;
+
+        temp = placeHolder[colA];
+        placeHolder[colA] = placeHolder[colB];
+        placeHolder[colB] = temp;
+
+        temp = defaultRowTypes[colA];
+        defaultRowTypes[colA] = defaultRowTypes[colB];
+        defaultRowTypes[colB] = temp;
+
+        if (doRefresh) {
+          document.getElementById("r0c" + colA).outerHTML = headingHTML(colA);
+          document.getElementById("r0c" + colB).outerHTML = headingHTML(colB);
+          refreshCol(colA);
+          refreshCol(colB);
+        }
+      }
+
+    } // END: function swapCols()
+
+  </script>
+
+</head>
+
+<body onload="onLoadFunction();" onmouseup="goMouseUp();" oncontextmenu="return false;" onkeydown="checkKey();">
+  <div class="bg" id="bg">
+    <div class="usekeys"><B>YOU CAN USE KEYSTROKES:</B> INSERT, DELETE, ARROW KEYS, TAB, ctrl-z (undo) and ctrl-y
+      (redo). You can also drag rows or columns. Right click on a student name or column title for more options. Press [ESC] and arrow keys to select or deselect rows or cols. Press [ENTER] to edit a selected item.
+    </div>
+    <div class="topMenu">
+      <table class="container">
+        <tbody>
+          <tr>
+            <td><span class="menuItem" onclick="insertRow(-1,false, true);">Add Row</span></td>
+            <td><span class="menuItem" onclick="insertCol(-1,false, true,'Assignment '+(assignmentCount+1));">Add
+                Col</span></td>
+            <td><span class="menuItem" onclick="saveTable();">SAVE TABLE</span></td>
+            <td><span class="menuItem" id="mi_retb" onclick="retrieveTable();">RETRIEVE TABLE</span>
+            </td>
+            <td><span class="menuItem" id="mi_ls" onclick="clearLS();">CLEAR LS</span></td>
+            <td><span class="menuItem" id="mi_undo" onclick="undoLastEdit();">UNDO (ctrl-z)</span></td>
+            <td><span class="menuItem" id="mi_redo" onclick="redoLastEdit();">RE-DO (ctrl-y)</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div id="interactiveTable">TABLE</div>
+  </div>
+
+
+  <span class="outside" id="outside" onmousedown="clearRhMenu();"></span>
+  <div class="menu" id="rc_menu"></div>
+
+
+
+</body>
+
+</HTML>
